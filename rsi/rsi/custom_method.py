@@ -8,7 +8,7 @@ from frappe.utils import flt, cint, nowdate,getdate, cstr,date_diff
 def payment_discount_rule(payment,method):
 	deduction=0
 	for data in payment.get("references"):
-		if data.reference.doctype=="Sales Invoice":
+		if data.doctype=="Sales Invoice":
 			if nowdate < data.due_date:
 				deduction+= flt(data.allocated_amount)
 	if deduction>0:
