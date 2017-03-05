@@ -12,8 +12,14 @@ def payment_discount_rule(payment,method):
 			if nowdate < data.due_date:
 				deduction+= flt(data.allocated_amount)
 	if deduction>0:
-		payment.get("deductions").append(
-			{"account":"4103.021-DISC.PENJUALAN JAA UMUM (JAU) - RSI",
-			"cost_center":"Main - RSI",
-			"amount":deduction})
+		found = 0
+		for deduct in payment.get("deductions"):
+			if deduct.account=="4103.021-DISC.PENJUALAN JAA UMUM (JAU) - RSI":
+				deduct.amount=deduction
+				found=1
+		if found == 0:
+			payment.get("deductions").append(
+				{"account":"4103.021-DISC.PENJUALAN JAA UMUM (JAU) - RSI",
+				"cost_center":"Main - RSI",
+				"amount":deduction})
 
