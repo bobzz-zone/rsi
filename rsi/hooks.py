@@ -70,13 +70,7 @@ app_license = "MIT"
 # ---------------
 # Hook on document methods and events
 
-doc_events = {
-	"Payment Entry": {
-		"before_save": "rsi.rsi.custom_method.payment_discount_rule",
-# 		"on_cancel": "method",erpnext.stock.doctype.material_request.material_request.update_completed_and_requested_qty
-# 		"on_trash": "method"
-	}
-}
+
 
 # Scheduled Tasks
 # ---------------
