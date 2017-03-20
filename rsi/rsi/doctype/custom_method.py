@@ -6,167 +6,189 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 from frappe import msgprint
+from frappe.utils import  date_diff
 
 class custom_method(Document):
 	pass
 
-
 @frappe.whitelist()
-def update_qty_ste_di_sales_order_on_submit(doc, method):
-	if doc.order_type == "Titipan" :
-		# tabel di STE
-		if doc.items :
-			sales_order = doc.sales_order
-			prev_docname = ""
-			prev_childname = ""
-			qty_ste = 0
-			for i in doc.items :
-				prev_docname = i.prev_docname
-				prev_childname = i.prev_childname
-				qty_ste = i.qty
+def payment_entry_discount(doc,method):
+	total=0
+	for ref in doc.references:
+		if ref.reference_doctype=="Sales Invoice":
+			date = frappe.get_value("Sales Invoice",ref.reference_name,"posting_date")
+			diff = date_diff(doc.posting_date,date)
+			if diff<13:
+				total+=ref.allocated_amount*0.948
+			else diff < 56:
+				total+=ref.allocated_amount*0.96
+	if total >0:
+		found=0
+		for d in doc.deductions:
+			if d.account=="4103.021-DISC.PENJUALAN JAA UMUM (JAU) - RSI":
+				found = 1;
+				d.amount=total;
+		if found==0:
+			new_deduction = doc.append("deductions",{})
+			new_deduction.account = "4103.021-DISC.PENJUALAN JAA UMUM (JAU) - RSI"
+			new_deduction.amount = total
+			new_deduction.cost_center = "Main - RSI"
+#@frappe.whitelist()
+#def update_qty_ste_di_sales_order_on_submit(doc, method):
+# 	if doc.order_type == "Titipan" :
+# 		# tabel di STE
+# 		if doc.items :
+# 			sales_order = doc.sales_order
+# 			prev_docname = ""
+# 			prev_childname = ""
+# 			qty_ste = 0
+# 			for i in doc.items :
+# 				prev_docname = i.prev_docname
+# 				prev_childname = i.prev_childname
+# 				qty_ste = i.qty
 
-				so_qty_ste = frappe.db.sql("""
-					SELECT
-					soi.`ste_qty`
-					FROM `tabSales Order Item` soi
-					WHERE soi.`parent` = "{}"
-					AND soi.`name` = "{}"
-				""".format(prev_docname, prev_childname))
+# 				so_qty_ste = frappe.db.sql("""
+# 					SELECT
+# 					soi.`ste_qty`
+# 					FROM `tabSales Order Item` soi
+# 					WHERE soi.`parent` = "{}"
+# 					AND soi.`name` = "{}"
+# 				""".format(prev_docname, prev_childname))
 
-				if so_qty_ste :
-					qty_ste = qty_ste + so_qty_ste[0][0]
-					frappe.db.sql("""
-						UPDATE `tabSales Order Item` soi SET soi.`ste_qty` = {0} 
-						WHERE soi.`parent` = "{1}"
-						AND soi.`name` = "{2}" 
-					""".format(qty_ste,prev_docname, prev_childname))
-					frappe.db.commit()
+# 				if so_qty_ste :
+# 					qty_ste = qty_ste + so_qty_ste[0][0]
+# 					frappe.db.sql("""
+# 						UPDATE `tabSales Order Item` soi SET soi.`ste_qty` = {0} 
+# 						WHERE soi.`parent` = "{1}"
+# 						AND soi.`name` = "{2}" 
+# 					""".format(qty_ste,prev_docname, prev_childname))
+# 					frappe.db.commit()
 
-				else :
-					frappe.db.sql("""
-						UPDATE `tabSales Order Item` soi SET soi.`ste_qty` = {0} 
-						WHERE soi.`parent` = "{1}"
-						AND soi.`name` = "{2}" 
-					""".format(qty_ste,prev_docname, prev_childname))
-					frappe.db.commit()
+# 				else :
+# 					frappe.db.sql("""
+# 						UPDATE `tabSales Order Item` soi SET soi.`ste_qty` = {0} 
+# 						WHERE soi.`parent` = "{1}"
+# 						AND soi.`name` = "{2}" 
+# 					""".format(qty_ste,prev_docname, prev_childname))
+# 					frappe.db.commit()
 
-@frappe.whitelist()
-def update_qty_ste_di_sales_order_on_cancel(doc, method):
-	if doc.order_type == "Titipan" :
-		# tabel di STE
-		if doc.items :
-			sales_order = doc.sales_order
-			prev_docname = ""
-			prev_childname = ""
-			qty_ste = 0
-			for i in doc.items :
-				prev_docname = i.prev_docname
-				prev_childname = i.prev_childname
-				qty_ste = i.qty
+# @frappe.whitelist()
+# def update_qty_ste_di_sales_order_on_cancel(doc, method):
+# 	if doc.order_type == "Titipan" :
+# 		# tabel di STE
+# 		if doc.items :
+# 			sales_order = doc.sales_order
+# 			prev_docname = ""
+# 			prev_childname = ""
+# 			qty_ste = 0
+# 			for i in doc.items :
+# 				prev_docname = i.prev_docname
+# 				prev_childname = i.prev_childname
+# 				qty_ste = i.qty
 
-				so_qty_ste = frappe.db.sql("""
-					SELECT
-					soi.`ste_qty`
-					FROM `tabSales Order Item` soi
-					WHERE soi.`parent` = "{}"
-					AND soi.`name` = "{}"
-				""".format(prev_docname, prev_childname))
+# 				so_qty_ste = frappe.db.sql("""
+# 					SELECT
+# 					soi.`ste_qty`
+# 					FROM `tabSales Order Item` soi
+# 					WHERE soi.`parent` = "{}"
+# 					AND soi.`name` = "{}"
+# 				""".format(prev_docname, prev_childname))
 
-				if so_qty_ste :
-					qty_ste = so_qty_ste[0][0] - qty_ste
-					frappe.db.sql("""
-						UPDATE `tabSales Order Item` soi SET soi.`ste_qty` = {0} 
-						WHERE soi.`parent` = "{1}"
-						AND soi.`name` = "{2}" 
-					""".format(qty_ste,prev_docname, prev_childname))
-					frappe.db.commit()
+# 				if so_qty_ste :
+# 					qty_ste = so_qty_ste[0][0] - qty_ste
+# 					frappe.db.sql("""
+# 						UPDATE `tabSales Order Item` soi SET soi.`ste_qty` = {0} 
+# 						WHERE soi.`parent` = "{1}"
+# 						AND soi.`name` = "{2}" 
+# 					""".format(qty_ste,prev_docname, prev_childname))
+# 					frappe.db.commit()
 
-				else :
-					frappe.db.sql("""
-						UPDATE `tabSales Order Item` soi SET soi.`ste_qty` = {0} 
-						WHERE soi.`parent` = "{1}"
-						AND soi.`name` = "{2}" 
-					""".format(qty_ste,prev_docname, prev_childname))
-					frappe.db.commit()
+# 				else :
+# 					frappe.db.sql("""
+# 						UPDATE `tabSales Order Item` soi SET soi.`ste_qty` = {0} 
+# 						WHERE soi.`parent` = "{1}"
+# 						AND soi.`name` = "{2}" 
+# 					""".format(qty_ste,prev_docname, prev_childname))
+# 					frappe.db.commit()
 
 
-@frappe.whitelist()
-def update_qty_fom_di_ste_on_submit(doc, method):
-	if doc.order_type == "Titipan" :
-		# tabel di STE
-		if doc.items :
-			stock_entry = doc.stock_entry
-			ste_docname = ""
-			ste_childname = ""
-			qty_ste = 0
-			for i in doc.items :
-				ste_docname = i.ste_docname
-				ste_childname = i.ste_childname
-				qty_ste = i.qty
+# @frappe.whitelist()
+# def update_qty_fom_di_ste_on_submit(doc, method):
+# 	if doc.order_type == "Titipan" :
+# 		# tabel di STE
+# 		if doc.items :
+# 			stock_entry = doc.stock_entry
+# 			ste_docname = ""
+# 			ste_childname = ""
+# 			qty_ste = 0
+# 			for i in doc.items :
+# 				ste_docname = i.ste_docname
+# 				ste_childname = i.ste_childname
+# 				qty_ste = i.qty
 
-				so_qty_ste = frappe.db.sql("""
-					SELECT
-					soi.`qty_form`
-					FROM `tabStock Entry Detail` soi
-					WHERE soi.`parent` = "{}"
-					AND soi.`name` = "{}"
-				""".format(ste_docname, ste_childname))
+# 				so_qty_ste = frappe.db.sql("""
+# 					SELECT
+# 					soi.`qty_form`
+# 					FROM `tabStock Entry Detail` soi
+# 					WHERE soi.`parent` = "{}"
+# 					AND soi.`name` = "{}"
+# 				""".format(ste_docname, ste_childname))
 
-				if so_qty_ste :
-					qty_ste = qty_ste + so_qty_ste[0][0]
-					frappe.db.sql("""
-						UPDATE `tabStock Entry Detail` soi SET soi.`qty_form` = {0} 
-						WHERE soi.`parent` = "{1}"
-						AND soi.`name` = "{2}" 
-					""".format(qty_ste,ste_docname, ste_childname))
-					frappe.db.commit()
+# 				if so_qty_ste :
+# 					qty_ste = qty_ste + so_qty_ste[0][0]
+# 					frappe.db.sql("""
+# 						UPDATE `tabStock Entry Detail` soi SET soi.`qty_form` = {0} 
+# 						WHERE soi.`parent` = "{1}"
+# 						AND soi.`name` = "{2}" 
+# 					""".format(qty_ste,ste_docname, ste_childname))
+# 					frappe.db.commit()
 
-				else :
-					frappe.db.sql("""
-						UPDATE `tabStock Entry Detail` soi SET soi.`qty_form` = {0} 
-						WHERE soi.`parent` = "{1}"
-						AND soi.`name` = "{2}" 
-					""".format(qty_ste,ste_docname, ste_childname))
-					frappe.db.commit()
+# 				else :
+# 					frappe.db.sql("""
+# 						UPDATE `tabStock Entry Detail` soi SET soi.`qty_form` = {0} 
+# 						WHERE soi.`parent` = "{1}"
+# 						AND soi.`name` = "{2}" 
+# 					""".format(qty_ste,ste_docname, ste_childname))
+# 					frappe.db.commit()
 
-@frappe.whitelist()
-def update_qty_form_di_ste_on_cancel(doc, method):
-	if doc.order_type == "Titipan" :
-		# tabel di STE
-		if doc.items :
-			stock_entry = doc.stock_entry
-			ste_docname = ""
-			ste_childname = ""
-			qty_ste = 0
-			for i in doc.items :
-				ste_docname = i.ste_docname
-				ste_childname = i.ste_childname
-				qty_ste = i.qty
+# @frappe.whitelist()
+# def update_qty_form_di_ste_on_cancel(doc, method):
+# 	if doc.order_type == "Titipan" :
+# 		# tabel di STE
+# 		if doc.items :
+# 			stock_entry = doc.stock_entry
+# 			ste_docname = ""
+# 			ste_childname = ""
+# 			qty_ste = 0
+# 			for i in doc.items :
+# 				ste_docname = i.ste_docname
+# 				ste_childname = i.ste_childname
+# 				qty_ste = i.qty
 
-				so_qty_ste = frappe.db.sql("""
-					SELECT
-					soi.`qty_form`
-					FROM `tabStock Entry Detail` soi
-					WHERE soi.`parent` = "{}"
-					AND soi.`name` = "{}"
-				""".format(ste_docname, ste_childname))
+# 				so_qty_ste = frappe.db.sql("""
+# 					SELECT
+# 					soi.`qty_form`
+# 					FROM `tabStock Entry Detail` soi
+# 					WHERE soi.`parent` = "{}"
+# 					AND soi.`name` = "{}"
+# 				""".format(ste_docname, ste_childname))
 
-				if so_qty_ste :
-					qty_ste = so_qty_ste[0][0] - qty_ste
-					frappe.db.sql("""
-						UPDATE `tabStock Entry Detail` soi SET soi.`qty_form` = {0} 
-						WHERE soi.`parent` = "{1}"
-						AND soi.`name` = "{2}" 
-					""".format(qty_ste,ste_docname, ste_childname))
-					frappe.db.commit()
+# 				if so_qty_ste :
+# 					qty_ste = so_qty_ste[0][0] - qty_ste
+# 					frappe.db.sql("""
+# 						UPDATE `tabStock Entry Detail` soi SET soi.`qty_form` = {0} 
+# 						WHERE soi.`parent` = "{1}"
+# 						AND soi.`name` = "{2}" 
+# 					""".format(qty_ste,ste_docname, ste_childname))
+# 					frappe.db.commit()
 
-				else :
-					frappe.db.sql("""
-						UPDATE `tabStock Entry Detail` soi SET soi.`qty_form` = {0} 
-						WHERE soi.`parent` = "{1}"
-						AND soi.`name` = "{2}" 
-					""".format(qty_ste,ste_docname, ste_childname))
-					frappe.db.commit()
+# 				else :
+# 					frappe.db.sql("""
+# 						UPDATE `tabStock Entry Detail` soi SET soi.`qty_form` = {0} 
+# 						WHERE soi.`parent` = "{1}"
+# 						AND soi.`name` = "{2}" 
+# 					""".format(qty_ste,ste_docname, ste_childname))
+# 					frappe.db.commit()
 
 
 

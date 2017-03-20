@@ -10,7 +10,11 @@ app_icon = "octicon octicon-file-directory"
 app_color = "grey"
 app_email = "techinal@erpsonic.com"
 app_license = "MIT"
-
+doc_events = {
+	"Stock Entry": {
+		"validate": "rsi.rsi.doctype.custom_method.payment_entry_discount"
+	}
+}
 # Includes in <head>
 # ------------------
 
