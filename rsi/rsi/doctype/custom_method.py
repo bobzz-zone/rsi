@@ -18,6 +18,10 @@ def auto_sales_assign(doc,method):
 		for data in sales_partner:
 			if doc.sales_partner=="":
 				doc.sales_partner=data[0]
+			else:
+				msgprint("b")
+	else:
+		msgprint("a")
 @frappe.whitelist()
 def payment_entry_discount(doc,method):
 	total=0
