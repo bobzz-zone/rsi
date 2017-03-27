@@ -13,6 +13,9 @@ app_license = "MIT"
 doc_events = {
 	"Stock Entry": {
 		"validate": "rsi.rsi.doctype.custom_method.payment_entry_discount"
+	},
+	"Sales Order": {
+		"validate": "rsi.rsi.doctype.custom_method.auto_sales_assign"
 	}
 }
 # Includes in <head>
