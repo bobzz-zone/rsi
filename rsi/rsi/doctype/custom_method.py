@@ -26,9 +26,13 @@ def payment_entry_discount(doc,method):
 			date = frappe.get_value("Sales Invoice",ref.reference_name,"posting_date")
 			diff = date_diff(doc.posting_date,date)
 			if diff<13:
-				total+=ref.allocated_amount*0.948
-			else diff < 56:
-				total+=ref.allocated_amount*0.96
+				gg=(ref.allocated_amount/0.948)-ref.allocated_amount
+				total+=gg
+				ref.allocated_amount +=gg
+			elif diff < 56:
+				gg=(ref.allocated_amount/0.96)-ref.allocated_amount
+				total+=gg
+				ref.allocated_amount+=gg
 	if total >0:
 		found=0
 		for d in doc.deductions:
@@ -40,6 +44,8 @@ def payment_entry_discount(doc,method):
 			new_deduction.account = "4103.021-DISC.PENJUALAN JAA UMUM (JAU) - RSI"
 			new_deduction.amount = total
 			new_deduction.cost_center = "Main - RSI"
+		msgprint("Discount accumulated")
+
 #@frappe.whitelist()
 #def update_qty_ste_di_sales_order_on_submit(doc, method):
 # 	if doc.order_type == "Titipan" :
