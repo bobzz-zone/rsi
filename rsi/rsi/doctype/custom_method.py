@@ -14,10 +14,11 @@ class custom_method(Document):
 def auto_sales_assign(doc,method):
 	#frappe.session.user
 	sales_partner = frappe.db.sql("""select name from `tabSales Partner` where user = "{}" """.format(frappe.session.user),as_list=1)
-	msgprint(doc.sales_partner)
 	if sales_partner :
 		for data in sales_partner:
-			if doc.sales_partner=="":
+			if not doc.sales_partner:
+				doc.sales_partner=data[0]
+			elif doc.sales_partner=="":
 				doc.sales_partner=data[0]
 
 @frappe.whitelist()
