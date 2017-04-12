@@ -6,7 +6,8 @@ from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
 from frappe import msgprint
-from frappe.utils import  date_diff
+from frappe.utils import  date_diff,flt
+
 
 class custom_method(Document):
 	pass
@@ -24,16 +25,21 @@ def auto_sales_assign(doc,method):
 @frappe.whitelist()
 def payment_entry_discount(doc,method):
 	total=0
+	d1 = flt(frappe.db.get_single_value('Accounts Settings','d1'))
+	d2 = flt(frappe.db.get_single_value('Accounts Settings','d2'))
+	disc1 = flt(frappe.db.get_single_value('Accounts Settings','disc1'))
+	disc2 = flt(frappe.db.get_single_value('Accounts Settings','disc2'))
 	for ref in doc.references:
 		if ref.reference_doctype=="Sales Invoice":
 			date = frappe.get_value("Sales Invoice",ref.reference_name,"posting_date")
 			diff = date_diff(doc.posting_date,date)
-			if diff<13:
-				gg=(ref.allocated_amount/0.948)-ref.allocated_amount
+
+			if diff<=d1:
+				gg=(ref.allocated_amount*disc1)/(100-disc1)
 				total+=gg
 				ref.allocated_amount +=gg
-			elif diff < 56:
-				gg=(ref.allocated_amount/0.96)-ref.allocated_amount
+			elif diff <= d2:
+				gg=(ref.allocated_amount*disc2)/(100-disc2)
 				total+=gg
 				ref.allocated_amount+=gg
 	if total >0:
