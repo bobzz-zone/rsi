@@ -33,14 +33,16 @@ def payment_entry_discount(doc,method):
 		if ref.reference_doctype=="Sales Invoice":
 			date = frappe.get_value("Sales Invoice",ref.reference_name,"posting_date")
 			diff = date_diff(doc.posting_date,date)
-
+			ref.sales = doc.sales
 			if diff<=d1:
 				gg=(ref.allocated_amount*disc1)/(100-disc1)
 				total+=gg
+				ref.discount_accumulated = gg
 				ref.allocated_amount +=gg
 			elif diff <= d2:
 				gg=(ref.allocated_amount*disc2)/(100-disc2)
 				total+=gg
+				ref.discount_accumulated = gg
 				ref.allocated_amount+=gg
 	if total >0:
 		found=0
