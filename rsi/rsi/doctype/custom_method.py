@@ -60,6 +60,7 @@ def payment_entry_discount(doc,method):
 			new_deduction.amount = total
 			new_deduction.cost_center = "Main - RSI"
 		msgprint("Discount accumulated")
+		doc.set_amounts()
 
 #@frappe.whitelist()
 #def update_qty_ste_di_sales_order_on_submit(doc, method):
