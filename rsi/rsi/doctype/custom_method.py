@@ -40,14 +40,14 @@ def payment_entry_discount(doc,method):
 				allocated -= ref.discount_accumulated
 			gg=0
 			if diff<=d1:
-				gg=(ref.allocated_amount*disc1)/(100-disc1)
+				gg=(allocated*disc1)/(100-disc1)
 			elif diff <= d2:
-				gg=(ref.allocated_amount*disc2)/(100-disc2)
+				gg=(allocated*disc2)/(100-disc2)
+			total+=gg
 			if gg>0 and gg!=ref.discount_accumulated:
 				update=1
-				total+=gg
 				ref.discount_accumulated = gg
-				ref.allocated_amount +=gg
+				ref.allocated_amount =allocated+gg
 	if total >0:
 		found=0
 		for d in doc.deductions:
