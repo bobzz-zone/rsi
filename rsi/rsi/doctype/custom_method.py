@@ -51,12 +51,12 @@ def payment_entry_discount(doc,method):
 	if total >0:
 		found=0
 		for d in doc.deductions:
-			if d.account=="4103.021-DISC.PENJUALAN JAA UMUM (JAU) - RSI":
+			if d.account=="6110.024-BI.CADANGAN PROGRAM CASHBACK - RSI":
 				found = 1;
 				d.amount=total;
 		if found==0:
 			new_deduction = doc.append("deductions",{})
-			new_deduction.account = "4103.021-DISC.PENJUALAN JAA UMUM (JAU) - RSI"
+			new_deduction.account = "6110.024-BI.CADANGAN PROGRAM CASHBACK - RSI"
 			new_deduction.amount = total
 			new_deduction.cost_center = "Main - RSI"
 		msgprint("Discount accumulated")
