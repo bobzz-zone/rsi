@@ -11,9 +11,9 @@ app_color = "grey"
 app_email = "techinal@erpsonic.com"
 app_license = "MIT"
 doc_events = {
-	"Payment Entry": {
-		"validate": "rsi.rsi.doctype.custom_method.payment_entry_discount"
-	},
+#	"Payment Entry": {
+#		"validate": "rsi.rsi.doctype.custom_method.payment_entry_discount"
+#	},
 	"Sales Order": {
 		"validate": "rsi.rsi.doctype.custom_method.auto_sales_assign"
 	}
