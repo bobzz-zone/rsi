@@ -9,7 +9,7 @@ def execute(filters=None):
 	where=""
 	if filters.get("sales"):
 		where=""" and sales="{}" """.format(filters.get("sales"))
-	if filters.get("type")!="All":
+	if filters.get("type") and filters.get("type")!="All":
 		where=""" {} and jenis_kredit="{}" """.format(where ,filters.get("type"))
 	data = frappe.db.sql("""select posting_date,date_format(posting_date,"%W"),count(1) as "qty" , sum(base_grand_total) as "omset" from `tabSales Invoice` where docstatus=1 {} and is_return=1 and (posting_date between "{}" and "{}") group by posting_date """.format(where,filters.get("from_date"),filters.get("to_date")),as_list=1)
 	return columns, data
