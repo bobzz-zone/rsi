@@ -1,0 +1,49 @@
+<h2 class="text-center">Tanda Terima Tagihan</h2>
+{% if (filters.sales) { %}
+<p><b>Sales:</b> {%= filters.sales %}</p>
+{% } %}
+<h5>
+	{%= dateutil.str_to_user(filters.from_date) %}
+	{%= __("to") %}
+	{%= dateutil.str_to_user(filters.to_date) %}
+</h5>
+<hr>
+<table class="table table-bordered">
+	<thead>
+		<tr>
+			<th rowspan="2" style="width: 15%">Customer</th>
+			<th rowspan="2" style="width: 8%">Tanggal</th>
+			<th rowspan="2" style="width: 7%">Invoice</th>
+			<th rowspan="2" style="width: 10%">Jumlah</th>
+			<th colspan="2" style="width: 20%">Pembayaran</th>
+			<th rowspan="2" style="width: 5%">Sisa Nota</th>
+			<th colspan="3" style="width: 30%">Giro / Cheque</th>
+			<th rowspan="2" style="width: 5%">Ket</th>
+		</tr>
+		<tr>
+			<th style="width: 10%">Tunai</th>
+			<th style="width: 10%">Giro</th>
+			<th style="width: 10%">Bank</th>
+			<th style="width: 10%">Giro</th>
+			<th style="width: 10%">J.T</th>
+		</tr>
+	</thead>
+	<tbody>
+		{% for(var i=0, l=data.length; i<l; i++) { %}
+			<tr>
+				<td>{%= data[i]["Customer"] %}</td>
+				<td>{%= dateutil.str_to_user(data[i]["Tanggal"]) %}</td>
+				<td>{%= data[i]["Invoice"] %}</td>
+				<td>{%= format_currency(data[i]["Jumlah"]) %}</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td>{%= data[i]["Usia"] %}</td>
+			</tr>
+		{% } %}
+	</tbody>
+</table>
+<p class="text-right text-muted">Printed On {%= dateutil.str_to_user(dateutil.get_datetime_as_string()) %}</p>
