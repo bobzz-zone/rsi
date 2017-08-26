@@ -14,6 +14,6 @@ def execute(filters=None):
 	if filters.get("remark"):
 		where=""" {} and a.remarks like "%{}%" """.format(where,filters.get("remark"))
 	data = frappe.db.sql("""select a.posting_date,date_format(a.posting_date,"%W"),count(1) as "qty" , sum(a.base_grand_total) as "omset" 
-		from (select p.posting_date,p.base_grand_total,pi.warehouse,p.remarks,p.supplier,p.is_return,p.docstatus from `tabPurchase Invoice` p join `tabPurchase Invoice Item` pi on p.name=pi.parent group by name) a 
+		from (select p.posting_date,p.base_grand_total,pi.warehouse,p.remarks,p.supplier,p.is_return,p.docstatus from `tabPurchase Invoice` p join `tabPurchase Invoice Item` pi on p.name=pi.parent group by p.name) a 
 		where a.docstatus=1 and a.is_return=0 {} and (a.posting_date between "{}" and "{}") group by a.posting_date """.format(where,filters.get("from_date"),filters.get("to_date")),as_list=1)
 	return columns, data
