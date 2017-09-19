@@ -14,7 +14,7 @@ def execute(filters=None):
 	customer=""
 	for row in result:
 		if customer == row[0]:
-			row.append(["",row[1],row[2],row[3],,row[4]])
+			row.append(["",row[1],row[2],row[3],row[4]])
 		else:
 			customer=row[0]
 			row.append([row[0],row[1],row[2],row[3],row[4]])
